@@ -11,8 +11,8 @@
     <None Remove="Controls\Scheduler\Scheduler.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools"  />
+    <PackageReference Include="Microsoft.WindowsAppSDK"  />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Controls\Scheduler\Scheduler.xaml">
