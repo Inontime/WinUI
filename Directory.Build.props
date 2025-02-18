@@ -1,0 +1,8 @@
+<Project>
+	<PropertyGroup>		
+		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+		<!--For support of the field keyword in C# 13 and [ObservableProperty] code generators-->
+		<LangVersion>preview</LangVersion>
+		<RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+	</PropertyGroup>
+</Project>

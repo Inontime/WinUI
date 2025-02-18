@@ -1,0 +1,64 @@
+trigger:
+- main
+- dev/*
+- rel/*
+
+pr:
+- main
+- dev/*
+- rel/*
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  Build.Configuration: Release
+  Major: 3
+  Minor: 0
+  Patch: $[counter(format('{0}.{1}', variables['Major'], variables['Minor']),0)]
+  PackageVersion: $(Major).$(Minor).$(Patch)
+
+jobs:
+- job: BuildBits
+  displayName: Build and Test solution
+  timeoutInMinutes: 60
+  steps:
+
+  # Restore solution
+  - script: dotnet restore -p:Configuration=$(Build.Configuration)
+    displayName: Restore solution
+
+  # Build solution
+  - script: dotnet build --no-restore -c $(Build.Configuration)
+    displayName: Build solution
+
+  # Test solution #
+
+  # Run .NET 9 unit tests
+  - script: dotnet test --no-build -c $(Build.Configuration) -f net9.0 -l "trx;LogFileName=VSTestResults_net9.0.trx"
+    displayName: Run .NET 9 unit tests
+
+  # Publish test results
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '**/TestResults/VSTestResults*.trx'
+    condition: always()
+
+  # Pack solution
+  - script: dotnet pack --no-build -c $(Build.Configuration) -p:PackageVersion=$(PackageVersion) -o $(Build.ArtifactStagingDirectory)
+    displayName: Pack solution
+
+  # Publish build artifacts
+  - task: NuGetCommand@2
+    displayName: 'nuget push'
+    inputs:
+      command: 'push'
+      feedsToUse: 'select'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: 'InontimeSources'
+      versioningScheme: 'byEnvVar'
+      versionEnvVar: PackageVersion
+      allowPackageConflicts: true
