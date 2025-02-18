@@ -13,6 +13,10 @@ pool:
 
 variables:
   Build.Configuration: Release
+  Major: 1
+  Minor: 7
+  Patch: $[counter(format('{0}.{1}', variables['Major'], variables['Minor']),0)]
+  PackageVersion: $(Major).$(Minor).$(Patch)
 
 jobs:
 - job: BuildBits
@@ -30,9 +34,9 @@ jobs:
 
   # Test solution #
 
-  # Run .NET 8 unit tests
+  # Run .NET 9 unit tests
   - script: dotnet test --no-build -c $(Build.Configuration) -f net9.0 -l "trx;LogFileName=VSTestResults_net9.0.trx"
-    displayName: Run .NET 8 unit tests
+    displayName: Run .NET 9 unit tests
 
   # Publish test results
   - task: PublishTestResults@2
@@ -43,17 +47,8 @@ jobs:
     condition: always()
 
   # Pack solution
-  - script: dotnet pack --no-build -c $(Build.Configuration)
+  - script: dotnet pack --no-build -c $(Build.Configuration) -p:PackageVersion=$(PackageVersion) -p:TargetFramework=net9.0 -o bin/nupkg
     displayName: Pack solution
-
-  # Sign packages
-  # - pwsh: build/Sign-Package.ps1
-  #   displayName: Authenticode sign packages
-  #   env:
-  #     SignClientUser: $(SignClientUser)
-  #     SignClientSecret: $(SignClientSecret)
-  #     ArtifactDirectory: bin/nupkg
-  #   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), ne(variables['SignClientUser'], ''), ne(variables['SignClientSecret'], ''))
 
   # Publish build artifacts
   - publish: bin/nupkg
