@@ -1,19 +1,61 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
+- main
+- dev/*
+- rel/*
+
+pr:
+- main
+- dev/*
+- rel/*
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+  Build.Configuration: Release
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+- job: BuildBits
+  displayName: Build and Test solution
+  timeoutInMinutes: 60
+  steps:
+
+  # Restore solution
+  - script: dotnet restore -p:Configuration=$(Build.Configuration)
+    displayName: Restore solution
+
+  # Build solution
+  - script: dotnet build --no-restore -c $(Build.Configuration)
+    displayName: Build solution
+
+  # Test solution #
+
+  # Run .NET 8 unit tests
+  - script: dotnet test --no-build -c $(Build.Configuration) -f net9.0 -l "trx;LogFileName=VSTestResults_net9.0.trx"
+    displayName: Run .NET 8 unit tests
+
+  # Publish test results
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '**/TestResults/VSTestResults*.trx'
+    condition: always()
+
+  # Pack solution
+  - script: dotnet pack --no-build -c $(Build.Configuration)
+    displayName: Pack solution
+
+  # Sign packages
+  # - pwsh: build/Sign-Package.ps1
+  #   displayName: Authenticode sign packages
+  #   env:
+  #     SignClientUser: $(SignClientUser)
+  #     SignClientSecret: $(SignClientSecret)
+  #     ArtifactDirectory: bin/nupkg
+  #   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), ne(variables['SignClientUser'], ''), ne(variables['SignClientSecret'], ''))
+
+  # Publish build artifacts
+  - publish: bin/nupkg
+    artifact: Packages
+    displayName: Publish package artifacts
