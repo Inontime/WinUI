@@ -51,6 +51,14 @@ jobs:
     displayName: Pack solution
 
   # Publish build artifacts
-  - publish: bin/nupkg
-    artifact: Packages
-    displayName: Publish package artifacts
+    - task: NuGetCommand@2
+      displayName: 'nuget push'
+      inputs:
+        command: 'push'
+        feedsToUse: 'select'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: 'InontimeSources'
+        versioningScheme: 'byEnvVar'
+        versionEnvVar: PackageVersion
+        allowPackageConflicts: true
