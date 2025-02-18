@@ -47,7 +47,7 @@ jobs:
     condition: always()
 
   # Pack solution
-  - script: dotnet pack --no-build -c $(Build.Configuration) -p:PackageVersion=$(PackageVersion) -p:TargetFramework=net9.0 -o bin/nupkg
+  - script: dotnet pack --no-build -c $(Build.Configuration) -p:PackageVersion=$(PackageVersion) -o bin/nupkg
     displayName: Pack solution
 
   # Publish build artifacts
