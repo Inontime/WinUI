@@ -47,7 +47,7 @@ jobs:
     condition: always()
 
   # Pack solution
-  - script: dotnet pack --no-build -c $(Build.Configuration) -p:PackageVersion=$(PackageVersion) -o bin/nupkg
+  - script: dotnet pack --no-build -c $(Build.Configuration) -p:PackageVersion=$(PackageVersion) -o $(Build.ArtifactStagingDirectory)
     displayName: Pack solution
 
   # Publish build artifacts
