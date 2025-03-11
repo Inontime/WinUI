@@ -19,6 +19,7 @@ namespace IAS.WinUI.Controls
         public Scheduler()
         {
             InitializeComponent();
+
             _layoutState = new(StartTime, ResourceDisplayMemberPath, StartTimePath, EndTimePath);
             _layoutState.StartTime = StartTime;
             ResourceItemsRepeater.Layout = new RowItemLayoutPanel(_layoutState);
@@ -30,8 +31,8 @@ namespace IAS.WinUI.Controls
 
             };
             DetailsScrollViewer.ViewChanged += DetailsScrollViewer_ViewChanged;
-            _timeItems.ReGenerateTimeItems(_layoutState.TimeScale, StartTime, GetMaxEndDate());
 
+            _timeItems.ReGenerateTimeItems(_layoutState.TimeScale, StartTime, GetMaxEndDate());
         }
 
         private void DetailsScrollViewer_ViewChanged(ScrollView sender, object args)

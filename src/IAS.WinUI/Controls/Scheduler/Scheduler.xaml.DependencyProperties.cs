@@ -22,6 +22,8 @@ namespace IAS.WinUI.Controls
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register(nameof(ItemsSource), typeof(object), typeof(Scheduler), new PropertyMetadata(null, OnItemsSourceChanged));
 
+
+
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is Scheduler scheduler)
@@ -255,8 +257,14 @@ namespace IAS.WinUI.Controls
 
         // Using a DependencyProperty as the backing store for StartTime.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty StartTimeProperty =
-            DependencyProperty.Register(nameof(StartTime), typeof(DateTimeOffset), typeof(Scheduler), new PropertyMetadata(new DateTimeOffset(DateTime.Today, TimeZoneInfo.Local.BaseUtcOffset), StartTimePropertyChanged));
-
+            DependencyProperty.Register(nameof(StartTime), typeof(DateTimeOffset), typeof(Scheduler), new PropertyMetadata(GetDefaultStartTime(), StartTimePropertyChanged));
+        private static DateTimeOffset GetDefaultStartTime()
+        {
+            var today = DateTime.Today;
+            var offset = TimeZoneInfo.Local.GetUtcOffset(today); // Corrects for DST
+            var rVal = new DateTimeOffset(today, offset);
+            return rVal;
+        }
         private static void StartTimePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is Scheduler scheduler)
@@ -281,7 +289,7 @@ namespace IAS.WinUI.Controls
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TimeWindowStartTimeProperty =
-            DependencyProperty.Register(nameof(TimeWindowStartTime), typeof(int), typeof(Scheduler), new PropertyMetadata(new DateTimeOffset(DateTime.Today, TimeZoneInfo.Local.BaseUtcOffset), OnTimeWindowStartTimePropertyChanged));
+            DependencyProperty.Register(nameof(TimeWindowStartTime), typeof(int), typeof(Scheduler), new PropertyMetadata(GetDefaultStartTime(), OnTimeWindowStartTimePropertyChanged));
 
         private static void OnTimeWindowStartTimePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
