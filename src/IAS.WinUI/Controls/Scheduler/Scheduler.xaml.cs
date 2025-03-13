@@ -18,6 +18,7 @@ namespace IAS.WinUI.Controls
 
         public Scheduler()
         {
+
             InitializeComponent();
             _layoutState = new(StartTime, ResourceDisplayMemberPath, StartTimePath, EndTimePath);
             _layoutState.StartTime = StartTime;
